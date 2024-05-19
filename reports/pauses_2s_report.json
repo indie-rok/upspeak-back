@@ -1,0 +1,31 @@
+{
+    "user_id": "asod-123",
+    "mp3_location": "location.mp3",
+    "track_length": 59.123,
+    "global_stats": {
+        "silence_count": 2,
+        "filler_word_count": 0,
+        "average_wpm": 105.76923464882317,
+        "filler_words": []
+    },
+    "chunks": [
+        {
+            "id": 1,
+            "start": 0.9422187500000001,
+            "end": 6.32534375,
+            "wpm": 167.1891327063741
+        },
+        {
+            "id": 2,
+            "start": 8.704718750000001,
+            "end": 11.016593750000002,
+            "wpm": 103.81184103811839
+        },
+        {
+            "id": 3,
+            "start": 13.58159375,
+            "end": 17.58096875,
+            "wpm": 180.02812939521797
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "user_id": "asod-123",
+    "mp3_location": "location.mp3",
+    "track_length": 59.123,
+    "global_stats": {
+        "silence_count": 0,
+        "filler_word_count": 0,
+        "average_wpm": 235.42233843016376
+    },
+    "chunks": [
+        {
+            "id": 1,
+            "start": 0.38534375,
+            "end": 17.22659375,
+            "wpm": 252.9503451347139
+        }
+    ]
+}
