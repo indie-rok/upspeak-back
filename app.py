@@ -17,8 +17,6 @@ app = Flask(__name__)
 CORS(app)
 logger = logging.getLogger(__name__)
 
-model_name = "gpt-4o"
-
 def validate_video():
     return False
 
@@ -28,7 +26,7 @@ def video_report():
         video = request.files.get('video_file')
         topic = request.form.get('topic')
     except Exception as e:
-        print("Exception while getting files/form data:", e)
+        logger.info("error getting the files:", {str(e)}, '\n')
         return jsonify({"error": "Failed to get files or form data"}), 400
 
     if not video:
@@ -56,8 +54,5 @@ def video_report():
 
             return jsonify(report_content)
     except Exception as e:
-        logger.error(f"Error processing video: {str(e)}")
+        logger.error(f"Error processing video: {str(e)}",  '\n')
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(port=8000, debug=True)
