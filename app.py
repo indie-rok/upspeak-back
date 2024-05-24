@@ -56,3 +56,7 @@ def video_report():
     except Exception as e:
         logger.error(f"Error processing video: {str(e)}",  '\n')
         return jsonify({"error": str(e)}), 500
+
+@app.route('/test', methods=['get'])
+    def test():
+        return jsonify({"working": True})
