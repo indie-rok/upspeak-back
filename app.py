@@ -58,5 +58,5 @@ def video_report():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/test', methods=['get'])
-    def test():
-        return jsonify({"working": True})
+def test():
+    return jsonify({"working": True})
