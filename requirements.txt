@@ -11,3 +11,5 @@ pyannote.metrics==3.2.1
 pyannote.pipeline==3.0.1
 python-dotenv==1.0.1
 Werkzeug==3.0.3
+gunicorn==22.0.0
+wheel==0.43.0
