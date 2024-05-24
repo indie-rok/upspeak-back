@@ -6,7 +6,7 @@ import time
 import base64
 from IPython.display import Image, display, Audio, Markdown
 
-client = OpenAI(api_key=os.getEnv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def get_audio_transcript(audio_path):
     transcription = client.audio.transcriptions.create(
