@@ -1,0 +1,13 @@
+Flask==3.0.3
+Flask_Cors==4.0.1
+ipython==8.12.3
+moviepy==1.0.3
+openai==1.30.2
+opencv_python==4.9.0.80
+pyannote.audio==3.2.0
+pyannote.core==5.0.0
+pyannote.database==5.1.0
+pyannote.metrics==3.2.1
+pyannote.pipeline==3.0.1
+python-dotenv==1.0.1
+Werkzeug==3.0.3

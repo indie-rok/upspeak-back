@@ -1,7 +1,7 @@
 import json
 import os
 
-def create_report(audio_path,report):
+def create_report_json(audio_path,report):
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
     json_path = f"reports/{base_name}_report.json"
     with open(json_path, 'w') as json_file:
