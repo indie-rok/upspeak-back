@@ -5,6 +5,7 @@ import os
 import tempfile
 import logging
 from dotenv import load_dotenv
+load_dotenv()
 
 from split_audio_video import split_audio_video
 from get_audio_transcript import get_audio_transcript
@@ -12,7 +13,6 @@ from process_audio_transcript import process_audio_transcript
 from create_report_api import create_report_api
 from prepare_video import prepare_video
 
-load_dotenv()
 app = Flask(__name__)
 CORS(app)
 logger = logging.getLogger(__name__)
