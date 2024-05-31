@@ -2,8 +2,12 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import os
+import requests
 import tempfile
 import logging
+import uuid
+import subprocess
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -20,39 +24,45 @@ logger = logging.getLogger(__name__)
 def validate_video():
     return False
 
+def download_from_s3(video_url):
+    # Create a temporary directory
+    temp_dir = tempfile.mkdtemp()
+    temp_filename = os.path.join(temp_dir, str(uuid.uuid4()) + os.path.splitext(video_url)[1])
+
+     # Download video from S3 using curl
+    subprocess.run(['curl', '-o', temp_filename, video_url], check=True)
+
+    return temp_filename
+
+
 @app.route('/video_report', methods=['POST'])
 def video_report():
+    data = request.get_json()
+
+    video_url = data.get('videoUrl')
+    selected_topic = data.get('selectedTopic')
+    recorded_video_url = data.get('recordedVideoUrl')
+
+    if not video_url or not selected_topic or not recorded_video_url:
+        return jsonify({'error': 'Invalid input'}), 400
+
     try:
-        video = request.files.get('video_file')
-        topic = request.form.get('topic')
-    except Exception as e:
-        logger.info("error getting the files:", {str(e)}, '\n')
-        return jsonify({"error": "Failed to get files or form data"}), 400
+        temp_local_video_path = download_from_s3(video_url)
+        temp_prepared_video_path = prepare_video(temp_local_video_path)
+        
+        video_frames, audio_path = split_audio_video(temp_prepared_video_path)
+        transcript = get_audio_transcript(audio_path)
 
-    if not video:
-        return jsonify({"error": "No video provided"}), 400
+        global_stats = process_audio_transcript(transcript)
+        report = create_report_api(global_stats)
 
-    try:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_video_path = os.path.join(temp_dir, secure_filename(video.filename))
-            video.save(temp_video_path)
+        report_content = {
+            "topic": selected_topic["title"],
+            "global_stats": global_stats,
+            "report": report
+        }
 
-            # Process the video to ensure proper metadata
-            processed_video_path = os.path.join(temp_dir, "processed_" + secure_filename(video.filename))
-            prepare_video(temp_video_path, processed_video_path)
-
-            video_frames, audio_path = split_audio_video(processed_video_path)
-            transcript = get_audio_transcript(audio_path)
-            global_stats = process_audio_transcript(transcript)
-            report = create_report_api(global_stats)
-
-            report_content = {
-                "topic": topic,
-                "global_stats": global_stats,
-                "report": report
-            }
-
-            return jsonify(report_content)
+        return jsonify(report_content)
     except Exception as e:
         logger.error(f"Error processing video: {str(e)}",  '\n')
         return jsonify({"error": str(e)}), 500
