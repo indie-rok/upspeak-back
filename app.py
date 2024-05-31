@@ -41,10 +41,11 @@ def video_report():
 
     video_url = data.get('videoUrl')
     selected_topic = data.get('selectedTopic')
-    recorded_video_url = data.get('recordedVideoUrl')
 
-    if not video_url or not selected_topic or not recorded_video_url:
+    # todo add validations
+    if not video_url or not selected_topic:
         return jsonify({'error': 'Invalid input'}), 400
+
 
     try:
         temp_local_video_path = download_from_s3(video_url)
@@ -64,6 +65,7 @@ def video_report():
 
         return jsonify(report_content)
     except Exception as e:
+        print('error',e)
         logger.error(f"Error processing video: {str(e)}",  '\n')
         return jsonify({"error": str(e)}), 500
 
