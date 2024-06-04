@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from split_audio_video import split_audio_video
-from get_audio_transcript import get_audio_transcript
+from get_audio_transcript import get_audio_transcript, InsufficientWordsError
 from process_audio_transcript import process_audio_transcript
 from create_report_api import create_report_api
 from prepare_video import prepare_video
@@ -20,6 +20,7 @@ from prepare_video import prepare_video
 app = Flask(__name__)
 CORS(app)
 logger = logging.getLogger(__name__)
+SHARED_SECRET = os.getenv('SHARED_SECRET')
 
 def validate_video():
     return False
@@ -41,11 +42,13 @@ def video_report():
 
     video_url = data.get('videoUrl')
     selected_topic = data.get('selectedTopic')
+    auth_header = request.headers.get('Authorization')
 
-    # todo add validations
-    if not video_url or not selected_topic:
+    if auth_header != SHARED_SECRET:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    if not video_url:
         return jsonify({'error': 'Invalid input'}), 400
-
 
     try:
         temp_local_video_path = download_from_s3(video_url)
@@ -58,16 +61,19 @@ def video_report():
         report = create_report_api(global_stats)
 
         report_content = {
-            "topic": selected_topic["title"],
+            "topic": selected_topic.get("title") if selected_topic else None,
             "global_stats": global_stats,
             "report": report
         }
 
         return jsonify(report_content)
+    except InsufficientWordsError as e:
+        logger.error(f"Error: {str(e)}")
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         print('error',e)
         logger.error(f"Error processing video: {str(e)}",  '\n')
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Error processing video"}), 500
 
 @app.route('/test', methods=['get'])
 def test():

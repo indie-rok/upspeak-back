@@ -31,11 +31,6 @@ def process_audio_transcript(transcription):
             filler_word_count += 1
             filler_words_list.append(current_word['word'].lower())
 
-    # Also check the last word for being a filler word
-    if (transcription.words[-1]['word'].lower() in filler_words_set):
-        filler_word_count += 1
-        filler_words_list.append(transcription.words[-1]['word'].lower())
-
     # Calculate average WPM (Words Per Minute)
     average_wpm = get_wpm(total_words, transcription.duration)
 
