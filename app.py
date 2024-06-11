@@ -1,8 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
 import os
-import requests
 import tempfile
 import logging
 import uuid
@@ -75,6 +73,5 @@ def video_report():
         logger.error(f"Error processing video: {str(e)}",  '\n')
         return jsonify({"error": "Error processing video"}), 500
 
-@app.route('/test', methods=['get'])
-def test():
-    return jsonify({"working": True})
+
+import slides_report
