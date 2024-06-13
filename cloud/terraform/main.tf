@@ -40,6 +40,11 @@ resource "aws_instance" "flask_server" {
 
   key_name      = aws_key_pair.deployer.key_name
 
+  root_block_device {
+    volume_size = 8  # Size in GB
+    volume_type = "gp2"
+  }
+
   tags = {
     Name = "FlaskServerInstance"
   }

@@ -6,6 +6,7 @@ reports
 .env
 myprojectenv
 logs/
+env/
 
 # Terraform
 *.tfstate

@@ -32,15 +32,21 @@ asdf global python latest
 source env/bin/activate
 ```
 
+### install ffmpeg
+
+```
+wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz
+tar -xf ffmpeg-release-arm64-static.tar.xz
+mv ./ffmpeg /usr/local/bin
+```
+
+sudo apt install ffmpeg ffmpeg libsm6 libxext6
+
 ### installing req
 
 ```
 pip install -r requirements.txt
 ```
-
-### install popple-utils
-
-sudo apt install ffmpeg
 
 ### set up env files
 
@@ -85,7 +91,6 @@ sudo systemctl start myproject
 sudo systemctl enable myproject
 sudo systemctl status myproject
 sudo systemctl stop myproject
-sudo systemctl restart myproject
 sudo systemctl restart myproject
 ```
 
