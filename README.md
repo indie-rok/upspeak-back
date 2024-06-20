@@ -1,3 +1,30 @@
+### script copy
+
+1. Install stuff
+
+```
+scp ./setup.sh ubuntu@54.78.234.67:/home/ubuntu
+```
+
+in ubuntu server
+
+```
+chmod +x setup.sh
+./setup.sh
+
+```
+
+2. Setup Env
+
+```
+cd upspeak-back
+nano .env
+```
+
+3. Run servers
+
+# Old setup back up
+
 ### set up asdf
 
 1. https://asdf-vm.com/guide/getting-started.html
@@ -40,7 +67,7 @@ tar -xf ffmpeg-release-arm64-static.tar.xz
 mv ./ffmpeg /usr/local/bin
 ```
 
-sudo apt install ffmpeg ffmpeg libsm6 libxext6
+sudo apt install ffmpeg libsm6 libxext6
 
 ### installing req
 

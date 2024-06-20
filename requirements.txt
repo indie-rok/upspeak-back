@@ -3,7 +3,7 @@ Flask_Cors==4.0.1
 ipython==8.12.3
 moviepy==1.0.3
 openai==1.30.2
-opencv_python==4.9.0.80
+opencv-python==4.10.0.84
 pyannote.audio==3.2.0
 pyannote.core==5.0.0
 pyannote.database==5.1.0
@@ -13,3 +13,4 @@ python-dotenv==1.0.1
 Werkzeug==3.0.3
 gunicorn==22.0.0
 wheel==0.43.0
+numpy==2.0.0

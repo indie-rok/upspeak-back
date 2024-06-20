@@ -7,7 +7,6 @@ resource "aws_key_pair" "deployer" {
   public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEwiM3yyAlCZN2RwYqbYcimGwwCH/H1FvTq+TrmKy1S+ emmanuel.orozco@adeo.com"
 }
 
-
 resource "aws_security_group" "flask_server_upspeak_sg" {
   name        = "flask_server_upspeak_sg"
   description = "Allow SSH and HTTP traffic"
@@ -51,4 +50,23 @@ resource "aws_instance" "flask_server" {
 
   # Security group to allow SSH and HTTP access
   vpc_security_group_ids = [aws_security_group.flask_server_upspeak_sg.id]
+}
+
+# Define the Elastic IP resource
+resource "aws_eip" "flask_server_eip" {
+  vpc = true
+}
+
+# Associate the Elastic IP with the instance
+resource "aws_eip_association" "flask_server_eip_assoc" {
+  instance_id   = aws_instance.flask_server.id
+  allocation_id = aws_eip.flask_server_eip.id
+}
+
+output "instance_id" {
+  value = aws_instance.flask_server.id
+}
+
+output "elastic_ip" {
+  value = aws_eip.flask_server_eip.public_ip
 }
