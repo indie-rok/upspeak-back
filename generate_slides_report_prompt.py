@@ -3,6 +3,8 @@ def generate_slides_report_prompt(image_urls):
     You will receive images. They are part of a presentation. Your role is to give feedback
     based on criteria I will define.
 
+    The images might be not in english, if you detect they are not in English, continue to give the feedback in English.  (but understand the images in the other language)
+
     I am giving the base64 of each image and also a JSON that includes the URL of the image.
     ```
     {image_urls}
