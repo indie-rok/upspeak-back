@@ -5,8 +5,11 @@ import tempfile
 import logging
 import uuid
 import subprocess
+import re
+import shutil
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from split_audio_video import split_audio_video
@@ -14,44 +17,49 @@ from get_audio_transcript import get_audio_transcript, InsufficientWordsError
 from process_audio_transcript import process_audio_transcript
 from create_report_api import create_report_api
 from prepare_video import prepare_video
+from pytube import YouTube
 
 app = Flask(__name__)
 CORS(app)
 logger = logging.getLogger(__name__)
-SHARED_SECRET = os.getenv('SHARED_SECRET')
+SHARED_SECRET = os.getenv("SHARED_SECRET")
+
 
 def validate_video():
     return False
 
+
 def download_from_s3(video_url):
     # Create a temporary directory
     temp_dir = tempfile.mkdtemp()
-    temp_filename = os.path.join(temp_dir, str(uuid.uuid4()) + os.path.splitext(video_url)[1])
+    temp_filename = os.path.join(
+        temp_dir, str(uuid.uuid4()) + os.path.splitext(video_url)[1]
+    )
 
-     # Download video from S3 using curl
-    subprocess.run(['curl', '-o', temp_filename, video_url], check=True)
+    # Download video from S3 using curl
+    subprocess.run(["curl", "-o", temp_filename, video_url], check=True)
 
     return temp_filename
 
 
-@app.route('/video_report', methods=['POST'])
+@app.route("/video_report", methods=["POST"])
 def video_report():
     data = request.get_json()
 
-    video_url = data.get('videoUrl')
-    selected_topic = data.get('selectedTopic')
-    auth_header = request.headers.get('Authorization')
+    video_url = data.get("videoUrl")
+    selected_topic = data.get("selectedTopic")
+    auth_header = request.headers.get("Authorization")
 
     if auth_header != SHARED_SECRET:
-        return jsonify({'error': 'Unauthorized'}), 401
+        return jsonify({"error": "Unauthorized"}), 401
 
     if not video_url:
-        return jsonify({'error': 'Invalid input'}), 400
+        return jsonify({"error": "Invalid input"}), 400
 
     try:
         temp_local_video_path = download_from_s3(video_url)
         temp_prepared_video_path = prepare_video(temp_local_video_path)
-        
+
         video_frames, audio_path = split_audio_video(temp_prepared_video_path)
         transcript = get_audio_transcript(audio_path)
 
@@ -61,7 +69,7 @@ def video_report():
         report_content = {
             "topic": selected_topic.get("title") if selected_topic else None,
             "global_stats": global_stats,
-            "report": report
+            "report": report,
         }
 
         return jsonify(report_content)
@@ -69,9 +77,64 @@ def video_report():
         logger.error(f"Error: {str(e)}")
         return jsonify({"error": str(e)}), 400
     except Exception as e:
-        print('error',e)
-        logger.error(f"Error processing video: {str(e)}",  '\n')
+        print("error", e)
+        logger.error(f"Error processing video: {str(e)}", "\n")
         return jsonify({"error": "Error processing video"}), 500
 
+
+def is_valid_youtube_url(url):
+    regex = re.compile(
+        r'^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$'
+    )
+    return re.match(regex, url) is not None
+
+@app.route("/video_report_youtube", methods=["POST"])
+def video_report_youtube():
+    data = request.get_json()
+    youtube_video_url = data.get("youtube_url")
+    selected_topic = data.get("selected_topic")
+    auth_header = request.headers.get("Authorization")
+
+    if auth_header != SHARED_SECRET:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    if not youtube_video_url or not is_valid_youtube_url(youtube_video_url):
+        return jsonify({"error": "Invalid YouTube URL"}), 400
+
+    try:
+        temp_dir = tempfile.mkdtemp()
+
+        yt = YouTube(youtube_video_url)
+
+        video_stream = yt.streams.filter(res="480p", mime_type="video/mp4", type="video").first()
+        audio_stream = yt.streams.filter(mime_type="audio/mp4", type="audio").first()
+
+        if not audio_stream:
+            return jsonify({"error": "No suitable audio stream found"}), 400
+
+        print("Download started",youtube_video_url)
+        audio_stream.download(output_path=temp_dir, filename='audio.mp3')
+
+        print("Download finished, starting audio transcript", youtube_video_url)
+        transcript = get_audio_transcript(os.path.join(temp_dir, 'audio.mp3'))
+
+        print("Finished transcript, creating report", youtube_video_url)
+        global_stats = process_audio_transcript(transcript)
+        report = create_report_api(global_stats)
+
+        report_content = {
+            "topic": selected_topic.get("title") if selected_topic else None,
+            "global_stats": global_stats,
+            "report": report,
+        }
+
+        return jsonify(report_content)
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({"error": "An error occurred while processing the video"}), 500
+
+    finally:
+        shutil.rmtree(temp_dir)
 
 import slides_report
