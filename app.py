@@ -123,7 +123,7 @@ def video_report_youtube():
         report = create_report_api(global_stats)
 
         report_content = {
-            "topic": selected_topic.get("title") if selected_topic else None,
+            "topic": selected_topic if selected_topic else None,
             "global_stats": global_stats,
             "report": report,
         }
